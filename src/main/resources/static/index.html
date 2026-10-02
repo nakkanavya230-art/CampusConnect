@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CampusConnect</title>
+<style>
+body{font-family:Arial;margin:0;background:#f4f7fb;color:#222}
+header{background:#263b80;color:white;padding:20px;text-align:center}
+.container{max-width:800px;margin:25px auto;padding:20px}
+.card{background:white;padding:20px;margin:15px 0;border-radius:12px;box-shadow:0 2px 8px #ccc}
+input,textarea,select,button{width:100%;padding:12px;margin:8px 0;box-sizing:border-box}
+button{background:#263b80;color:white;border:0;border-radius:6px}
+.request{border-left:5px solid #263b80;padding:12px;margin:10px 0;background:#fff}
+</style>
+</head>
+<body>
+<header>
+<h1>CampusConnect</h1>
+<p>Student Support & Campus Issue Tracker</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>Create a Campus Request</h2>
+<input id="title" placeholder="Request title">
+<textarea id="description" placeholder="Describe your issue"></textarea>
+
+<select id="category">
+<option>Classroom</option>
+<option>Laboratory</option>
+<option>Library</option>
+<option>Campus Facilities</option>
+<option>Student Support</option>
+<option>Other</option>
+</select>
+
+<select id="priority">
+<option>Low</option>
+<option>Medium</option>
+<option>High</option>
+</select>
+
+<button onclick="addRequest()">Submit Request</button>
+</div>
+
+<div class="card">
+<h2>My Requests</h2>
+<div id="requests"></div>
+</div>
+
+</div>
+
+<script>
+async function loadRequests(){
+ const res=await fetch('/api/requests');
+ const data=await res.json();
+ document.getElementById('requests').innerHTML=data.map(r=>
+ `<div class="request">
+ <b>${r.title}</b><br>
+ ${r.description||''}<br>
+ Category: ${r.category} | Priority: ${r.priority}<br>
+ Status: <b>${r.status}</b>
+ </div>`).join('');
+}
+
+async function addRequest(){
+ const request={
+  title:document.getElementById('title').value,
+  description:document.getElementById('description').value,
+  category:document.getElementById('category').value,
+  priority:document.getElementById('priority').value
+ };
+ await fetch('/api/requests',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify(request)
+ });
+ document.getElementById('title').value='';
+ document.getElementById('description').value='';
+ loadRequests();
+}
+loadRequests();
+</script>
+</body>
+</html>
